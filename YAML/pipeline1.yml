@@ -1,0 +1,117 @@
+trigger:
+- master
+pool:
+ name: newagent
+variables:
+  solution: '**/*.sln'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+stages:
+- stage: Build
+  displayName: CI
+  jobs:
+  - job: Build
+    steps:
+    - task: VSBuild@1
+      inputs:
+        solution: '$(solution)'
+        msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactStagingDirectory)"'
+        platform: '$(buildPlatform)'
+        configuration: '$(buildConfiguration)'
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'rompi'
+        publishLocation: 'Container'
+- stage: Dry
+  pool:
+    name: newagent
+  jobs:
+  - job: Dry
+    displayName: Dryrun
+    steps:
+    - task: DownloadBuildArtifacts@1
+      inputs:
+        buildType: 'current'
+        downloadType: 'single'
+        artifactName: 'rompi'
+        downloadPath: '$(System.ArtifactsDirectory)'
+    - task: AzureRmWebAppDeployment@4
+      inputs:
+        ConnectionType: 'AzureRM'
+        azureSubscription: 'Azure-service'
+        appType: 'webApp'
+        WebAppName: 'rompicharla'
+        packageForLinux: '$(System.ArtifactsDirectory)/**/*.zip'
+- stage: Development
+  pool:
+    name: newagent
+  jobs:
+  - deployment: Development
+    environment: Development
+    displayName: Development
+    strategy:
+      runOnce:
+       deploy:
+        steps:
+        - task: DownloadBuildArtifacts@1
+          inputs:
+            buildType: 'current'
+            downloadType: 'single'
+            artifactName: 'rompi'
+            downloadPath: '$(System.ArtifactsDirectory)'
+        - task: AzureRmWebAppDeployment@4
+          inputs:
+            ConnectionType: 'AzureRM'
+            azureSubscription: 'Azure-service'
+            appType: 'webApp'
+            WebAppName: 'rompicharla'
+            packageForLinux: '$(System.ArtifactsDirectory)/**/*.zip'
+- stage: Testing
+  pool:
+   name: newagent
+  jobs:
+  - deployment: Testing
+    environment: Testing
+    displayName: Testing
+    strategy:
+     runOnce:
+      deploy:
+       steps:
+        - task: DownloadBuildArtifacts@1
+          inputs:
+            buildType: 'current'
+            downloadType: 'single'
+            artifactName: 'rompi'
+            downloadPath: '$(System.ArtifactsDirectory)'
+        - task: AzureRmWebAppDeployment@4
+          inputs:
+            ConnectionType: 'AzureRM'
+            azureSubscription: 'Azure-service'
+            appType: 'webApp'
+            WebAppName: 'rompicharla'
+            packageForLinux: '$(System.ArtifactsDirectory)/**/*.zip'
+- stage: Production
+  pool:
+    name: newagent
+  jobs:
+  - deployment: Production
+    environment: Production
+    displayName: Production
+    strategy:
+     runOnce:
+      deploy:
+       steps:
+        - task: DownloadBuildArtifacts@1
+          inputs:
+            buildType: 'current'
+            downloadType: 'single'
+            artifactName: 'rompi'
+            downloadPath: '$(System.ArtifactsDirectory)'
+        - task: AzureRmWebAppDeployment@4
+          inputs:
+            ConnectionType: 'AzureRM'
+            azureSubscription: 'Azure-service'
+            appType: 'webApp'
+            WebAppName: 'rompicharla'
+            packageForLinux: '$(System.ArtifactsDirectory)/**/*.zip'
