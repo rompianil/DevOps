@@ -2,9 +2,6 @@ trigger:
 - master
 pool:
  name: newagent
- demands:
-  - msbuild
-  - visualstudio
 variables:
   solution: '**/*.sln'
   buildPlatform: 'Any CPU'
