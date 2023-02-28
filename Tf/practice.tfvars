@@ -1,0 +1,9 @@
+azurerm_resource_group-name = "Test-Rg"
+location = "West Europe"
+azurerm_virtual_network-name = "Test-vnet"
+address_space = ["192.168.0.0/16"]
+azurerm_subnet-name = "Test-subnet"
+address_prefixes = ["192.168.62.24/28"]
+azurerm_network_interface-name = "Test nic"
+ip_configuration = "Test-ipc"
+private_ip_address_allocation = ["192.168.62.25"]

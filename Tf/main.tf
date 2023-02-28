@@ -1,43 +1,46 @@
+terraform {
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "=3.0.0"
+    }
+  }
+}
 provider "azurerm" {
   features {}
-
-  subscription_id = "00000000-0000-0000-0000-000000000000"
-  client_id       = "00000000-0000-0000-0000-000000000000"
-  client_secret   = var.client_secret
-  tenant_id       = "00000000-0000-0000-0000-000000000000"
 }
 
 #RG
 
 resource "azurerm_resource_group" "rg" {
-  name     = var.azurerm_resource_group.name
+  name     = var.azurerm_resource_group-name
   location = var.location
 }
 
 #VNET
 
 resource "azurerm_virtual_network" "vnet" {
-  name                = var.azurerm_virtual_network.name
+  name                = var.azurerm_virtual_network-name
   address_space       = var.address_space 
   location            = var.location
-  resource_group_name = var.azurerm_resource_group.name
+  resource_group_name = var.azurerm_resource_group-name
 }
 
 #subnet
 
 resource "azurerm_subnet" "subnet" {
-  name                 = var.azurerm_subnet.name
-  resource_group_name  = var.azurerm_resource_group.name
-  virtual_network_name = var.azurerm_virtual_network.name
+  name                 = var.azurerm_subnet-name
+  resource_group_name  = var.azurerm_resource_group-name
+  virtual_network_name = var.azurerm_virtual_network-name
   address_prefixes     = var.address_prefixes
 }
 
 #NIC CARD
 
 resource "azurerm_network_interface" "nic" {
-  name                = var.azurerm_network_interface.name
+  name                = var.azurerm_network_interface-name
   location            = var.location
-  resource_group_name = var.azurerm_resource_group.name
+  resource_group_name = var.azurerm_resource_group-name
 
   ip_configuration {
     name                          = var.ip_configuration
@@ -48,8 +51,8 @@ resource "azurerm_network_interface" "nic" {
 
 resource "azurerm_windows_virtual_machine" "vm-1" {
   name                = "testvm"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
+  resource_group_name = var.azurerm_resource_group-name
+  location            = var.location
   size                = "Standard_F2"
   admin_username      = "rompi"
   admin_password      = "rompi@123"
